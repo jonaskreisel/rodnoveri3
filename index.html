@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rodnoveri.cz | Encyklopedie Slovanských Bohů</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ZÁKLADNÍ PROMĚNNÉ A RESET --- */
+        :root {
+            --primary-red: #8a0e0e; /* Barva krve/výšivky */
+            --primary-dark: #2c1e1e;
+            --paper-bg: #f4f1ea; /* Barva pergamenu */
+            --paper-texture: #e8e4da;
+            --text-color: #1a1a1a;
+            --gold: #c5a059;
+            --border-style: 4px double var(--primary-red);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--paper-bg);
+            background-image: radial-gradient(var(--paper-texture) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-color);
+            font-family: 'Lora', serif;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--primary-red);
+            color: #fff;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .logo {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #fff;
+            text-decoration: none;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr; /* Sidebar + Content */
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* --- SIDEBAR NAVIGACE --- */
+        aside {
+            background: #fff;
+            border-right: 1px solid #ccc;
+            padding: 2rem;
+            position: sticky;
+            top: 70px; /* Výška headeru */
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+
+        aside h3 {
+            font-family: 'Cinzel Decorative', cursive;
+            color: var(--primary-red);
+            border-bottom: 2px solid var(--gold);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-dark);
+            font-weight: 600;
+            transition: color 0.3s, padding-left 0.3s;
+            display: block;
+            border-bottom: 1px dotted #ddd;
+            padding: 5px 0;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary-red);
+            padding-left: 10px;
+            border-bottom-color: var(--primary-red);
+        }
+
+        /* --- HLAVNÍ OBSAH --- */
+        main {
+            padding: 3rem;
+            background: rgba(255,255,255,0.6);
+        }
+
+        .intro {
+            margin-bottom: 4rem;
+            text-align: center;
+            padding: 2rem;
+            border: var(--border-style);
+            background: #fff;
+        }
+
+        .intro h1 {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 3rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+        }
+
+        /* --- STYL ČLÁNKU (Wiki Styl) --- */
+        article.god-entry {
+            background: #fff;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border: 1px solid #dcdcdc;
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            /* Animace při scrollování */
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        article.god-entry.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .god-header {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .god-header h2 {
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 2.2rem;
+            color: var(--primary-red);
+        }
+
+        .god-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        /* Wiki Infobox (Obrázek) */
+        .infobox {
+            float: right;
+            width: 300px;
+            background: #f8f9fa;
+            border: 1px solid #a2a9b1;
+            padding: 5px;
+            margin: 0 0 20px 20px;
+            text-align: center;
+        }
+
+        .infobox img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            display: block;
+            /* Efekt při najetí */
+            transition: transform 0.3s;
+        }
+
+        .infobox img:hover {
+            transform: scale(1.02);
+        }
+
+        .infobox-caption {
+            font-size: 0.85rem;
+            padding: 10px 5px;
+            color: #444;
+            background: #e8e8e8;
+            margin-top: 5px;
+            font-weight: bold;
+            border-top: 1px solid #ccc;
+        }
+
+        /* Typografie textu */
+        .god-text p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            font-size: 1.1rem;
+        }
+        
+        /* Stylování seznamů v textu */
+        .god-text ul {
+            margin-left: 2rem;
+            margin-bottom: 1.2rem;
+            font-size: 1.1rem;
+        }
+        
+        .god-text li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Drop cap (iniciála) */
+        .god-text p:first-of-type::first-letter {
+            float: left;
+            font-family: 'Cinzel Decorative', cursive;
+            font-size: 3.5rem;
+            color: var(--primary-red);
+            line-height: 0.8;
+            padding-right: 10px;
+            padding-top: 5px;
+        }
+
+        /* Dekorace */
+        .separator {
+            text-align: center;
+            color: var(--gold);
+            font-size: 1.5rem;
+            margin: 2rem 0;
+            opacity: 0.6;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--primary-dark);
+            color: #ddd;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            font-size: 0.9rem;
+            border-top: 4px solid var(--gold);
+        }
+
+        /* --- RESPONZIVITA --- */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                position: fixed;
+                top: 0;
+                left: -100%; /* Skryté menu */
+                width: 80%;
+                height: 100vh;
+                z-index: 2000;
+                transition: left 0.3s ease;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            }
+
+            aside.active {
+                left: 0;
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+
+            .infobox {
+                float: none;
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto 2rem auto;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .god-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="logo">⟪ Rodnoveri.cz ⟫</a>
+        <button class="nav-toggle" id="menuBtn">☰ Menu</button>
+    </header>
+
+    <div class="container">
+        
+        <aside id="sidebar">
+            <h3>Panteon Bohů</h3>
+            <ul class="nav-links">
+                <li><a href="#perun">Perun</a></li>
+                <li><a href="#dazbog">Dažbog</a></li>
+                <li><a href="#rod">Rod</a></li>
+                <li><a href="#veles">Veles</a></li>
+                <li><a href="#svantovit">Svantovít</a></li>
+                <li><a href="#svarozic">Svarožic</a></li>
+                <li><a href="#svarog">Svarog</a></li>
+                <li><a href="#mokos">Mokoš</a></li>
+                <li><a href="#morana">Morana</a></li>
+                <li><a href="#stribog">Stribog</a></li>
+                <li><a href="#chors">Chors</a></li>
+                <li><a href="#radegast">Radegast</a></li>
+                <li><a href="#triglav">Triglav</a></li>
+                <li><a href="#ziva">Živa</a></li>
+                <li><a href="#jarovit">Jarovít</a></li>
+                <li><a href="#vesna">Vesna</a></li>
+                <li><a href="#chislobog">Chislobog</a></li>
+                <li><a href="#lada">Lada</a></li>
+                <li><a href="#osen">Oseň</a></li>
+                <li><a href="#belbog">Bělbog</a></li>
+            </ul>
+            <div style="margin-top: 2rem; font-size: 0.8rem; color: #666; font-style: italic;">
+                Kliknutím na jméno Boha přejdete na jeho kartu.
+            </div>
+        </aside>
+
+        <main>
+            
+            <div class="intro">
+                <h1>Slovanští Bohové</h1>
+                <p>Vítejte v moderní encyklopedii starých mýtů. Objevte příběhy, sílu a symboliku bytostí, které uctívali naši předkové.</p>
+            </div>
+
+            <article id="perun" class="god-entry">
+                <div class="god-header">
+                    <h2>Perun</h2>
+                    <div class="god-subtitle">Pán hromu a vládce nebes</div>
+                </div>
+                <div class="infobox">
+                    <img src="perun.png" alt="Bůh Perun" onerror="this.src='https://via.placeholder.com/300x400?text=Perun';">
+                    <div class="infobox-caption">Perun - Vládce blesku</div>
+                </div>
+                <div class="god-text">
+                    <p>Perun je asi tím úplně nejznámějším slovanským bohem. Pokud znáte Thora od Vikingů nebo Dia z řeckých bájí, tak Perun je jejich slovanský "kolega". Můžete si ho představit jako hlavního šéfa mezi bohy a absolutního vládce nad vším, co se děje na obloze.</p>
+                    <p>Jeho hlavní prací bylo řídit počasí, konkrétně bouřky. Když venku hřmělo a blýskalo se, staří Slované věřili, že to Perun jezdí po nebi na svém rachotícím voze a metá blesky na zem. Tyto blesky často házel v podobě kamenných seker nebo kladiv.</p>
+                    <p>Nebyl ale jen "meteorolog". Byl to také mocný bůh války, hrubé síly a ochránce spravedlnosti. Bojovníci a knížata ho uctívali, aby jim dal sílu v boji a zajistil vítězství. Lidé si ho představovali jako svalnatého, drsného chlapa s velkým, často zrzavým vousem. Jeho posvátným stromem byl mohutný dub, který představoval jeho sílu a odolnost. Byl to přísný, ale spravedlivý ochránce lidí před zlem.</p>
+                </div>
+            </article>
+
+            <article id="dazbog" class="god-entry">
+                <div class="god-header">
+                    <h2>Dažbog</h2>
+                    <div class="god-subtitle">Dárce světla a sluneční bůh</div>
+                </div>
+                <div class="infobox">
+                    <img src="dazbog.png" alt="Bůh Dažbog" onerror="this.src='https://via.placeholder.com/300x400?text=Dazbog';">
+                    <div class="infobox-caption">Dažbog - Dárce</div>
+                </div>
+                <div class="god-text">
+                    <p>Dažbog je ve slovanské mytologii tím, kdo přináší světlo a teplo. Můžete si ho představit jednoduše jako boha Slunce. Jeho jméno je krásně doslovné – znamená "Dající bůh" nebo "Bůh dárce".</p>
+                    <p>A co nám dává? Především sluneční svit, bez kterého by na zemi nic nerostlo a nebyl by život. Staří Slované věřili, že to on každé ráno vyjíždí na oblohu ve svém zlatém voze taženém koňmi, aby rozzářil svět, a večer zase mizí za obzorem. Byl to velmi oblíbený a laskavý bůh, protože na jeho štědrosti závisela úroda a blahobyt všech lidí.</p>
+                    <p>Lidé si ho představovali jako krásného, silného muže ve zlaté zbroji, z jehož tváře vyzařuje jasné světlo. Je synem boha Svaroga, nebeského kováře, a často se o něm mluvilo jako o "dědovi" všech Slovanů, což ukazuje, jak moc si ho vážili. Je to bůh života, radosti a životadárné síly slunce.</p>
+                </div>
+            </article>
+
+            <article id="rod" class="god-entry">
+                <div class="god-header">
+                    <h2>Rod</h2>
+                    <div class="god-subtitle">Praotec a stvořitel všeho</div>
+                </div>
+                <div class="infobox">
+                    <img src="rod.png" alt="Bůh Rod" onerror="this.src='https://via.placeholder.com/300x400?text=Rod';">
+                    <div class="infobox-caption">Rod - Počátek všeho</div>
+                </div>
+                <div class="god-text">
+                    <p>Rod je možná tím nejdůležitějším, i když trochu tajemným bohem starých Slovanů. Představte si ho jako úplný počátek všeho. Než byli ostatní bohové, lidé, zvířata nebo celý svět, byl prý jen Rod. Je to stvořitel vesmíru a "pradědeček" nás všech.</p>
+                    <p>Jeho jméno znáte, aniž byste to možná tušili – je základem pro běžná slova jako "rodina", "národ", "úroda" nebo "příroda". To přesně ukazuje, co má na starosti. Rod je ten, kdo dává život, kdo spojuje generace rodičů s dětmi a kdo dohlíží na osud každého člověka už od jeho narození.</p>
+                    <p>Staří Slované věřili, že všechno, co existuje, pochází od něj a je s ním spojeno. Není to bojovník s mečem jako Perun, ale spíše nekonečně moudrá, klidná a prastará síla. Lidé si ho představovali jako velmi starého, vznešeného muže, který dlí nad světem, obklopen hvězdami, a drží v rukou počátky všeho života. Je to bůh zrození a věčného koloběhu.</p>
+                </div>
+            </article>
+
+            <article id="veles" class="god-entry">
+                <div class="god-header">
+                    <h2>Veles</h2>
+                    <div class="god-subtitle">Pán podzemí, magie a divoké přírody</div>
+                </div>
+                <div class="infobox">
+                    <img src="veles.png" alt="Bůh Veles" onerror="this.src='https://via.placeholder.com/300x400?text=Veles';">
+                    <div class="infobox-caption">Veles - Pán magie</div>
+                </div>
+                <div class="god-text">
+                    <p>Veles je ve slovanské mytologii jakýmsi protipólem hromovládce Peruna. Zatímco Perun vládne nahoře na nebi, Veles je pánem země, podzemí a divoké přírody. Ale pozor, není to žádný ďábel. Staří Slované si podsvětí nepředstavovali jako peklo, ale spíše jako tajuplný svět předků, kam se odchází po smrti a odkud pochází veškeré vědění.</p>
+                    <p>Veles je bohem moudrosti, magie a věštění. Je to ten, kdo zná stará tajemství. Je také velkým ochráncem dobytka, což bylo pro tehdejší lidi hlavní bohatství, takže se k němu modlili za ochranu stád. Je spojován s divokými zvířaty, hlavně s medvědy a vlky.</p>
+                    <p>Často si ho lidé představovali jako staršího, mocného muže, někdy trochu zarostlého, oblečeného do zvířecích kůží. Není to bůh války, ale spíše hlubokého poznání a přírodních sil.</p>
+                </div>
+            </article>
+
+            <article id="svantovit" class="god-entry">
+                <div class="god-header">
+                    <h2>Svantovít</h2>
+                    <div class="god-subtitle">Čtyřhlavý pán války a úrody</div>
+                </div>
+                <div class="infobox">
+                    <img src="svantovit.png" alt="Bůh Svantovít" onerror="this.src='https://via.placeholder.com/300x400?text=Svantovit';">
+                    <div class="infobox-caption">Svantovít - Vidí vše</div>
+                </div>
+                <div class="god-text">
+                    <p>Svantovít byl jedním z nejmocnějších a nejuctívanějších slovanských bohů, obzvláště populární u kmenů žijících u Baltského moře. Můžete si ho představit jako hlavního ochránce a válečníka, ale také jako boha, který se staral o to, aby lidé měli dostatek jídla.</p>
+                    <p>Jeho největší zajímavostí je, jak byl zobrazován. V jeho hlavním chrámu na ostrově Rujána stála obrovská dřevěná socha, která měla čtyři hlavy. Každá se dívala na jinou světovou stranu, což znamenalo, že Svantovít vidí úplně všechno a střeží své lidi ze všech směrů.</p>
+                    <p>Byl to bůh války, a proto byl jeho symbolem velký meč. Ale nebyl jen o boji. V pravé ruce držel roh na pití, který se každý rok plnil vínem. Podle toho, kolik vína ubylo, kněží věštili, jaká bude v příštím roce úroda. Měl také svého posvátného bílého koně, na kterém prý v noci jezdil bojovat proti nepřátelům a kterého také používali k věštění budoucnosti. Byl to mocný a vševědoucí ochránce.</p>
+                </div>
+            </article>
+
+            <article id="svarozic" class="god-entry">
+                <div class="god-header">
+                    <h2>Svarožic</h2>
+                    <div class="god-subtitle">Bůh pozemského ohně a ochránce krbu</div>
+                </div>
+                <div class="infobox">
+                    <img src="svarozic.png" alt="Bůh Svarožic" onerror="this.src='https://via.placeholder.com/300x400?text=Svarozic';">
+                    <div class="infobox-caption">Svarožic - Oheň krbu</div>
+                </div>
+                <div class="god-text">
+                    <p>Jméno Svarožic doslova znamená "malý Svarog" nebo "syn Svaroga". Zatímco jeho otec Svarog je nebeský kovář, který stvořil slunce, Svarožic je bohem ohně tady na zemi. Je to ten oheň, který hřeje, svítí a pomáhá lidem pracovat.</p>
+                    <p>Pro staré Slovany byl posvátný především jako ochránce domácího krbu. Krb byl srdcem celého domu – dával teplo, vařilo se na něm jídlo a scházela se u něj celá rodina. Svarožic byl proto vnímán jako laskavý bůh, který chrání domov před zimou a temnotou.</p>
+                    <p>Kromě toho byl také patronem všech kovářů a řemeslníků, kteří pracovali s ohněm. Lidé si ho představovali jako mladého, silného muže s tváří ožehnutou od žáru, stojícího u kovadliny s kladivem v ruce, obklopeného jiskrami a plameny. Je to symbol tvořivé síly ohně, která lidem pomáhá v jejich každodenním životě.</p>
+                </div>
+            </article>
+
+            <article id="svarog" class="god-entry">
+                <div class="god-header">
+                    <h2>Svarog</h2>
+                    <div class="god-subtitle">Nebeský kovář a stvořitel slunce</div>
+                </div>
+                <div class="infobox">
+                    <img src="svarog.png" alt="Bůh Svarog" onerror="this.src='https://via.placeholder.com/300x400?text=Svarog';">
+                    <div class="infobox-caption">Svarog - Kovář</div>
+                </div>
+                <div class="god-text">
+                    <p>Svarog je ve slovanské mytologii považován za jednoho z nejstarších a nejmocnějších bohů. Představte si ho jako božského kováře, který pracuje v obrovské kovárně přímo na nebi.</p>
+                    <p>Jeho nejdůležitějším úkolem bylo "ukovat" slunce a umístit ho na oblohu, aby dávalo světu světlo a teplo. Je to tedy stvořitel nebeského ohně a otec dalších bohů, například boha slunce Dažboga nebo boha pozemského ohně Svarožice. Pro staré Slovany byl Svarog symbolem tvořivé práce, řemesla a také zákonů, které drží svět pohromadě.</p>
+                    <p>Lidé si ho představovali jako mocného, svalnatého muže, často staršího a moudrého, který drží v ruce obrovské kovářské kladivo. Jeho práce není ničit, ale tvořit nové věci z rozžhaveného kovu a ohně. Je to patron všech kovářů a mistr nad mistry.</p>
+                </div>
+            </article>
+
+            <article id="mokos" class="god-entry">
+                <div class="god-header">
+                    <h2>Mokoš</h2>
+                    <div class="god-subtitle">Matka Země a ochránkyně žen</div>
+                </div>
+                <div class="infobox">
+                    <img src="mokos.png" alt="Bohyně Mokoš" onerror="this.src='https://via.placeholder.com/300x400?text=Mokos';">
+                    <div class="infobox-caption">Mokoš - Matka Země</div>
+                </div>
+                <div class="god-text">
+                    <p>Mokoš je asi nejdůležitější ženskou postavou ve slovanské mytologii. Můžete si ji představit jako laskavou "Matku Zemi", která dává život a stará se o úrodu. Její jméno je dokonce spojeno se slovem "mokrý", protože vláha je pro růst rostlin nezbytná.</p>
+                    <p>Pro staré Slovany byla Mokoš hlavní patronkou všech žen. Ochraňovala matky, pomáhala při porodech a starala se o zdraví dětí. Byla to také bohyně domácích prací, které dělaly ženy, hlavně předení a tkaní. Věřilo se, že nit, kterou žena upřede, je jako nit lidského osudu, na kterou Mokoš dohlíží.</p>
+                    <p>Lidé si ji představovali jako důstojnou, starší ženu s moudrou a laskavou tváří, často zobrazenou s vřetenem nebo přeslicí v ruce. Nebyla to jen bohyně v nebi, ale byla přítomná v samotné zemi, kterou lidé obdělávali. Je symbolem plodnosti, ženské síly a péče.</p>
+                </div>
+            </article>
+
+            <article id="morana" class="god-entry">
+                <div class="god-header">
+                    <h2>Morana</h2>
+                    <div class="god-subtitle">Paní zimy a smrti</div>
+                </div>
+                <div class="infobox">
+                    <img src="morana.png" alt="Bohyně Morana" onerror="this.src='https://via.placeholder.com/300x400?text=Morana';">
+                    <div class="infobox-caption">Morana - Paní zimy</div>
+                </div>
+                <div class="god-text">
+                    <p>Morana, někdy nazývaná také Morena nebo Smrtka, je ve slovanské mytologii bohyní zimy, noci a smrti. Možná to zní strašidelně, ale staří Slované ji nevnímali jako vyložené zlo. Byla pro ně spíše představitelkou nutného konce jednoho přírodního cyklu.</p>
+                    <p>Její vláda začíná s příchodem zimy, kdy příroda "umírá" pod sněhem, dny jsou krátké a tmavé. Představuje chlad, temnotu, ale také spánek, ze kterého se na jaře všechno znovu probudí. Její moc končí s příchodem jara, kdy ji nahrazuje bohyně života a jara, Vesna.</p>
+                    <p>Lidé si Moranu představovali různě – někdy jako ošklivou starou ženu, jindy jako bledou dívku nebo dokonce jako kostlivce. Dodnes se zachoval zvyk "vynášení Morany" (často jako slaměné figuríny) na konci zimy, který symbolizuje loučení se se zimou, její utopení nebo spálení, aby mohlo přijít nové, živé jaro. Je to symbol konce, který umožňuje nový začátek.</p>
+                </div>
+            </article>
+
+            <article id="stribog" class="god-entry">
+                <div class="god-header">
+                    <h2>Stribog</h2>
+                    <div class="god-subtitle">Děd větrů a vládce vzduchu</div>
+                </div>
+                <div class="infobox">
+                    <img src="stribog.png" alt="Bůh Stribog" onerror="this.src='https://via.placeholder.com/300x400?text=Stribog';">
+                    <div class="infobox-caption">Stribog - Děd větrů</div>
+                </div>
+                <div class="god-text">
+                    <p>Stribog je ve slovanské mytologii pánem všeho, co se hýbe ve vzduchu. Můžete si ho představit jako boha větru. Staří Slované věřili, že všechny větry, které na světě foukají – od toho nejjemnějšího vánku, který sotva pohne lístkem, až po ničivou vichřici, která láme stromy – jsou jeho děti nebo vnoučata. Proto se mu často říkalo "Děd větrů".</p>
+                    <p>Byl to velmi důležitý bůh pro každodenní život. Zemědělci potřebovali, aby přivál mraky s deštěm, když bylo sucho, nebo aby naopak rozehnal bouřky při žních. Námořníci a rybáři se k němu modlili, aby jim foukal dobrý vítr do plachet a bezpečně je dovedl domů.</p>
+                    <p>Lidé si ho představovali jako starého, ale stále velmi silného muže s dlouhým, rozevlátým vousem. Žil prý někde daleko na kraji světa, možná na ostrově v moři, odkud svými ústy vyfukoval větry do všech světových stran. Je to symbol síly vzduchu a pohybu.</p>
+                </div>
+            </article>
+
+            <article id="chors" class="god-entry">
+                <div class="god-header">
+                    <h2>Chors</h2>
+                    <div class="god-subtitle">Záhadný pán Měsíce</div>
+                </div>
+                <div class="infobox">
+                    <img src="chors.png" alt="Bůh Chors" onerror="this.src='https://via.placeholder.com/300x400?text=Chors';">
+                    <div class="infobox-caption">Chors - Pán noci</div>
+                </div>
+                <div class="god-text">
+                    <p>Chors je ve slovanské mytologii bohem Měsíce a nočního světla. Zatímco Dažbog vládne dni a dává lidem zlatavé sluneční teplo, Chors přichází na řadu, jakmile slunce zapadne. Je pánem noci, ale ne ve zlém smyslu. Jeho úkolem je přinášet lidem do tmy chladivé, stříbřité světlo.</p>
+                    <p>Pro staré Slovany byl nesmírně důležitý, protože podle Měsíce měřili čas. Fáze Měsíce jim říkaly, kdy mají sít, sklízet nebo kdy se blíží důležité svátky. Chors byl tedy jakýmsi nebeským strážcem kalendáře. Lidé věřili, že každou noc putuje po obloze a svým svitem chrání svět před úplnou temnotou a zlými silami, které v ní číhají, dokud se ráno opět nevrátí slunce.</p>
+                    <p>Často byl pro svou bledost a noční působení spojován s tajemnem a magií. Je to klidný a tichý bůh, který dohlíží na svět, když spí.</p>
+                </div>
+            </article>
+
+            <article id="radegast" class="god-entry">
+                <div class="god-header">
+                    <h2>Radegast</h2>
+                    <div class="god-subtitle">Bůh pohostinnosti, slunce a hojnosti</div>
+                </div>
+                <div class="infobox">
+                    <img src="radegast.png" alt="Bůh Radegast" onerror="this.src='https://via.placeholder.com/300x400?text=Radegast';">
+                    <div class="infobox-caption">Radegast - Dobrý hostitel</div>
+                </div>
+                <div class="god-text">
+                    <p>Radegast, také známý jako Radhost, je jedním z nejznámějších slovanských bohů u nás, především na Moravě a ve Slezsku. To je hlavně díky jeho spojení s Beskydami a slavnou sochou na Pustevnách. Byl to bůh, kterého si lidé velmi vážili.</p>
+                    <p>Jeho jméno je složeno ze slov, která znamenají „radostný host“. A to je jeho hlavní význam: byl bohem pohostinnosti. Staří Slované věřili, že být dobrým hostitelem je velmi důležitá věc. Radegast byl také spojen se sluncem, válkou a především s bohatou úrodou a blahobytem. Měl na starosti, aby lidé měli dostatek jídla.</p>
+                    <p>Představovali si ho jako mocného, silného muže. Jeho symbolem byla helma s býčími rohy, která představovala sílu a hojnost. V rukou často držel roh hojnosti nebo stál vedle černého koně. Byl to bůh, který se staral o to, aby komunitě nic nechybělo a aby se k sobě lidé chovali hezky. Byl to takový ochránce domova a úrody, který dbal na to, aby bylo na stole vždy dost jídla.</p>
+                </div>
+            </article>
+
+            <article id="triglav" class="god-entry">
+                <div class="god-header">
+                    <h2>Triglav</h2>
+                    <div class="god-subtitle">Tříhlavý strážce vesmíru</div>
+                </div>
+                <div class="infobox">
+                    <img src="triglav.png" alt="Bůh Triglav" onerror="this.src='https://via.placeholder.com/300x400?text=Triglav';">
+                    <div class="infobox-caption">Triglav - Strážce světů</div>
+                </div>
+                <div class="god-text">
+                    <p>Triglav, nebo také Tříhlavý bůh, je jedním z nejmocnějších a nejzáhadnějších slovanských bohů. Jeho jméno přesně popisuje, jak vypadal. Měl tři hlavy spojené u krku, které sledovaly a chránily tři různé části světa.</p>
+                    <p>Každá hlava měla jiný úkol. První hlava sledovala nebe, druhá se dívala na naši zemi a třetí hlídala podsvětí, říši mrtůjch. Triglav byl tedy bohem, který vládne nad vším, co existuje. Viděl minulost, přítomnost i budoucnost. Lidé ho uctívali s velkou bázní a respektem, protože věřili, že jim dohlíží na osud a zajišťuje, aby byl celý svět v rovnováze.</p>
+                    <p>Lidé si ho představovali jako velmi moudrého, ale přísného strážce. Často se o něm říkalo, že má zlatou pásku přes oči a ústa, aby neviděl lidské hříchy a nemluvil s lidmi. Jeho posvátným zvířetem byl černý kůň, kterého kněží používali k předpovídání budoucnosti. Byl to bůh, který spojoval všechny světy dohromady.</p>
+                </div>
+            </article>
+
+            <article id="ziva" class="god-entry">
+                <div class="god-header">
+                    <h2>Živa</h2>
+                    <div class="god-subtitle">Dárkyně života a letní plodnosti</div>
+                </div>
+                <div class="infobox">
+                    <img src="ziva.png" alt="Bohyně Živa" onerror="this.src='https://via.placeholder.com/300x400?text=Ziva';">
+                    <div class="infobox-caption">Živa - Síla života</div>
+                </div>
+                <div class="god-text">
+                    <p>Živa je ve slovanské mytologii zosobněním samotné síly života. Je to dárkyně plodnosti, léta a hojnosti. Její jméno doslova znamená „živá“ nebo „ožívající“. Představte si ji jako laskavou a mocnou sílu, která po jarním probuzení (za které může bohyně Vesna) rozžhaví slunce a způsobí, že se pole zazelenají a stromy ponesou ovoce.</p>
+                    <p>Jejím hlavním úkolem bylo dohlížet na úrodu a zajišťovat, aby měli lidé dost jídla na zimu. Pomáhala ale také ženám při porodu a starala se o zdraví dětí. Starší Slované si ji představovali jako dospělou, krásnou ženu s dlouhými zlatými vlasy, plnou energie a radosti. Často prý chodí bosá, aby cítila spojení se zemí, a v rukou drží snopy pšenice, jablka, hrozny vína nebo pivoňky. Je to symbol zralého léta, tvořivé síly přírody a věčného koloběhu života. Je opakem Morany, která vládne zimě a smrti.</p>
+                </div>
+            </article>
+
+            <article id="jarovit" class="god-entry">
+                <div class="god-header">
+                    <h2>Jarovít</h2>
+                    <div class="god-subtitle">Bůh jarní síly a vítězství</div>
+                </div>
+                <div class="infobox">
+                    <img src="jarovit.png" alt="Bůh Jarovít" onerror="this.src='https://via.placeholder.com/300x400?text=Jarovit';">
+                    <div class="infobox-caption">Jarovít - Jarní bojovník</div>
+                </div>
+                <div class="god-text">
+                    <p>Jarovít je jedním ze zajímavých slovanských bohů, který v sobě spojuje dvě zdánlivě různé věci: válku a jaro. Pro staré Slovany byl symbolem nezkrotné, mladistvé síly, která přichází po zimě.</p>
+                    <p>Jeho hlavní rolí bylo být bohem války a vítězství. Byl to patron bojovníků, kterým dodával sílu a odvahu v bitvě. Lidé si ho představovali jako mladého, svalnatého muže, často na krásném bílém koni, oděného do zlaté zbroje.</p>
+                    <p>Zároveň byl Jarovít bohem jara a plodnosti. Ale nešlo jen o něžné probouzení přírody. Jarovít představoval tu dravou, prudkou jarní sílu, která trhá sníh, nutí klíčit osení a probouzí celou zemi k životu po zimním spánku.</p>
+                    <p>Jeho nejdůležitějším symbolem byl obrovský posvátný zlatý štít. Ten visel v jeho chrámu a nikdo se ho nesměl dotknout, kromě nebezpečí. Lidé věřili, že přináší vítězství. Je to bůh dynamiky, prudkého života a síly, která překonává temnotu.</p>
+                </div>
+            </article>
+
+            <article id="vesna" class="god-entry">
+                <div class="god-header">
+                    <h2>Vesna</h2>
+                    <div class="god-subtitle">Bohyně jara a probuzené přírody</div>
+                </div>
+                <div class="infobox">
+                    <img src="vesna.png" alt="Bohyně Vesna" onerror="this.src='https://via.placeholder.com/300x400?text=Vesna';">
+                    <div class="infobox-caption">Vesna - Posel jara</div>
+                </div>
+                <div class="god-text">
+                    <p>Vesna je ve slovanské mytologii ztělesněním jara, mládí a nového života. Je to jedna z nejoblíbenějších a nejradostnějších postav, protože představuje konec temné, studené zimy, které vládne Morana. Vesna je ta, která svět znovu probouzí k životu.</p>
+                    <p>Její úkol je jednoduchý a krásný: zahnat chlad, rozpustit sníh a přinést teplo. Staří Slované věřili, že právě ona barví svět zpátky nazeleno, otevírá první květy a učí ptáky znovu zpívat. Její příchod znamenal konec hladu, proto byl vždy důvodem k velkým oslavám.</p>
+                    <p>Lidé si ji představovali jako velmi mladou, stále usměvavou a nádhernou dívku. Často prý chodí bosá, oblečená v lehkých šatech z přírodních materiálů. Ve vlasech má věnec z prvních jarních květin, jako jsou sněženky nebo pampelišky, a kde se její noha dotkne země, tam vyraší tráva. Je to symbol naděje, krásy a čisté radosti ze života.</p>
+                </div>
+            </article>
+
+            <article id="chislobog" class="god-entry">
+                <div class="god-header">
+                    <h2>Chislobog</h2>
+                    <div class="god-subtitle">Bůh čísel a času (novodobé božstvo)</div>
+                </div>
+                <div class="infobox">
+                    <img src="chislobog.png" alt="Bůh Chislobog" onerror="this.src='https://via.placeholder.com/300x400?text=Chislobog';">
+                    <div class="infobox-caption">Chislobog - Strážce času</div>
+                </div>
+                <div class="god-text">
+                    <p>Chislobog je fascinující, i když kontroverzní postava. Ačkoliv je v moderní době uctíván jako slovanský bůh čísel a času, historicky jeho existence nebyla spolehlivě doložena.</p>
+                    <p>Podle současných výzkumů je Chislobog považován za tzv. "pseudobožstvo," které bylo pravděpodobně vymyšleno až ve 20. století. První zmínky o něm se objevují ve Velesově knize, která je však odbornou veřejností považována za literární podvrh. Nicméně v některých větvích novodobého slovanského pohanství (například v Ingliismu) hraje důležitou roli.</p>
+                    <p>Zde je shrnutí jeho popisu:</p>
+                    <ul>
+                        <li><strong>Původ:</strong> Novodobé slovanské pseudobožstvo, pravděpodobně vymyšlené ve 20. století a popularizované Velesovou knihou.</li>
+                        <li><strong>Doména:</strong> Vládce času, čísel, osudu, a údajně i měsíce, astronomie a moudrosti.</li>
+                        <li><strong>Vzhled:</strong> Často je zobrazován jako moudrý stařec s dvěma tvářemi. Jedna tvář je kulatá a představuje Slunce (den), druhá má tvar srpku a představuje Měsíc (noc).</li>
+                    </ul>
+                    <p><strong>Atributy a Symboly:</strong></p>
+                    <ul>
+                        <li><strong>Meč:</strong> Symbolizuje ochranu a zachování kosmického řádu.</li>
+                        <li><strong>Štít:</strong> Nese vyobrazení starodávného runového kalendáře, který údajně Slované používali.</li>
+                        <li><strong>Měsíc a Slunce:</strong> Vyjadřují jeho vládu nad cykly dne a noci.</li>
+                        <li><strong>Váhy a Pohár času:</strong> Symboly spravedlnosti a kontroly nad plynutím času.</li>
+                    </ul>
+                    <p><strong>Role:</strong> Chislobog měl za úkol počítat dny, období a epochy a sdělovat tyto informace ostatním bohům, aby byl zachován řád světa. Byl strážcem kosmických vah a poháru, který mohl ovlivňovat minulost i budoucnost.</p>
+                    <p>Ačkoliv jeho historická autenticita chybí, v moderních představách o slovanské mytologii si našel své místo jako ochránce času a číselného řádu.</p>
+                </div>
+            </article>
+
+            <article id="lada" class="god-entry">
+                <div class="god-header">
+                    <h2>Lada</h2>
+                    <div class="god-subtitle">Laskavá patronka jara a rodinného štěstí</div>
+                </div>
+                <div class="infobox">
+                    <img src="lada.png" alt="Bohyně Lada" onerror="this.src='https://via.placeholder.com/300x400?text=Lada';">
+                    <div class="infobox-caption">Lada - Bohyně krásy</div>
+                </div>
+                <div class="god-text">
+                    <p>Lada je jednou z nejoblíbenějších a nejuznávanějších slovanských bohyň. Představuje ženský princip, mateřství, jaro a plodnost. Můžete si ji představit jako slovanskou obdobu Afrodity nebo Venuše, ale s větším důrazem na rodinné hodnoty.</p>
+                    <p>Pro staré Slovany byla Lada symbolem lásky, souladu a krásy. Starala se o to, aby v rodině panoval klid a aby se lidé k sobě chovali hezky. Byl to čas, kdy jaro přebírá vládu po zimě a celá příroda se probouzí k novému životu. Lidé ji vnímali jako mírnou, ale mocnou bohyni, která jim přináší radost a hojnost.</p>
+                    <p>Často byla spojována se svatbami, mateřstvím a ochranou dětí. Lidé si ji představovali jako velmi krásnou, zralou ženu s dlouhými zlatými vlasy, plnou něhy a pochopení. Často chodí prý bosa, aby cítila spojení se zemí, a v rukou drží symboly jara – jablka, klasy pšenice nebo náruč jarních květin.</p>
+                </div>
+            </article>
+
+            <article id="osen" class="god-entry">
+                <div class="god-header">
+                    <h2>Oseň</h2>
+                    <div class="god-subtitle">Štědrá bohyně podzimu a sklizně</div>
+                </div>
+                <div class="infobox">
+                    <img src="osen.png" alt="Bohyně Oseň" onerror="this.src='https://via.placeholder.com/300x400?text=Osen';">
+                    <div class="infobox-caption">Oseň - Zlatý podzim</div>
+                </div>
+                <div class="god-text">
+                    <p>Oseň (nebo také Jesen) je slovanská bohyně, která zosobňuje zlaté období podzimu. Představuje vrchol celoroční práce – čas hojnosti, vděčnosti a přípravy na tichou zimu. Na rozdíl od ohnivé vášně léta nebo znovuzrození jara přináší Oseň zralou, klidnou a štědrou energii.</p>
+                    <p>Jejím hlavním úkolem je dohlížet na sklizeň a zajišťovat, aby byl dar země sebrán a uložen. Je patronkou zemědělců a zahrádkářů, oslavuje odměnu za tvrdou práci. Oseň je také spojena se měnícími se barvami přírody, slábnoucím slunečním svitem a vařením medoviny a moštu. Připomíná nám, abychom byli vděční za to, co máme, a abychom se o svou hojnost dělili s ostatními.</p>
+                    <p>Lidé si ji představovali jako krásnou, zralou ženu, vyzařující teplo a spokojenost. Je často zobrazována v oděvech bohatých, zemitých tónů podzimu – hluboké červené, spálené oranžové a zlaté. Nosí symboly sklizně, jako je roh hojnosti přetékající ovocem, zeleninou a obilím, nebo věnec vyrobený z barevných padlých listů a sušené pšenice. Je to tichý, bohatý duch podzimní krajiny.</p>
+                </div>
+            </article>
+
+            <article id="belbog" class="god-entry">
+                <div class="god-header">
+                    <h2>Bělbog</h2>
+                    <div class="god-subtitle">Bůh světla, dobra a štěstí</div>
+                </div>
+                <div class="infobox">
+                    <img src="belbog.png" alt="Bůh Bělbog" onerror="this.src='https://via.placeholder.com/300x400?text=Belbog';">
+                    <div class="infobox-caption">Bělbog - Pán Světla</div>
+                </div>
+                <div class="god-text">
+                    <p>Bělbog (nebo také Bělboh) je ve slovanských představách tím úplně nejkladnějším hrdinou. Jeho jméno mluví za vše – znamená prostě „Bílý bůh“. Je to ztělesnění světla, dne, štěstí a dobra.</p>
+                    <p>Slované vnímali svět jako místo, kde proti sobě neustále stojí dvě síly – světlo a tma. Bělbog je vůdcem té světlé strany. Je to věčný protivník Černoboga, boha temnoty a smůly. Zatímco Černoboga se lidé báli, Bělboga měli rádi. Věřili, že právě on jim přináší úspěch v práci, zdraví a dobrou náladu. Když se někomu dařilo, zabloudil v lese a našel cestu ven, nebo měl prostě "klikářský" den, věřilo se, že mu pomohl právě Bělbog.</p>
+                    <p>Lidé si ho představovali jako vznešeného starce s dlouhým bílým vousem, oblečeného do zářivě bílého roucha. Často se zjevoval ve dne, zalitý slunečním svitem, a v ruce mohl třímat hůl. Je to symbol naděje a víry, že dobro nakonec vždycky zvítězí nad zlem.</p>
+                </div>
+            </article>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Rodnoveri.cz | Encyklopedie Slovanského Panteonu</p>
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-top: 5px;">Vytvořeno s úctou k předkům a modernímu designu.</p>
+    </footer>
+
+    <script>
+        // 1. Ovládání mobilního menu
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            if(sidebar.classList.contains('active')){
+                menuBtn.textContent = "✕ Zavřít";
+            } else {
+                menuBtn.textContent = "☰ Menu";
+            }
+        });
+
+        // Zavřít menu po kliknutí na odkaz (pro mobil)
+        const navLinks = document.querySelectorAll('.nav-links a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 900) {
+                    sidebar.classList.remove('active');
+                    menuBtn.textContent = "☰ Menu";
+                }
+            });
+        });
+
+        // 2. Animace při scrollování (Fade In efekt)
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.god-entry').forEach(entry => {
+            observer.observe(entry);
+        });
+
+        // 3. Zvýraznění aktivního odkazu v menu při scrollování
+        window.addEventListener('scroll', () => {
+            let current = '';
+            document.querySelectorAll('article').forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(li => {
+                li.classList.remove('active');
+                if (li.getAttribute('href').includes(current)) {
+                    li.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
